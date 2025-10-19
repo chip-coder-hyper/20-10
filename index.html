@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Thiệp 20/10</title>
+    <meta name="description" content="Thiệp chúc mừng 20/10 – quét QR để mở" />
+    <style>
+        :root {
+            --bg: #fff7fb;
+            --card: #ffffff;
+            --accent: #e91e63;
+            --text: #222;
+            --muted: #666;
+        }
+        * { box-sizing: border-box; }
+        html, body { height: 100%; }
+        body {
+            margin: 0;
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+            color: var(--text);
+            background:
+                radial-gradient(1200px 600px at 10% -20%, #ffd1e8 0%, rgba(255,255,255,0) 60%),
+                radial-gradient(1000px 500px at 110% 120%, #ffe4f1 0%, rgba(255,255,255,0) 60%),
+                var(--bg);
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            overflow: hidden;
+        }
+        .card {
+            position: relative;
+            width: min(680px, 100%);
+            background: var(--card);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(233,30,99,0.18), 0 8px 24px rgba(0,0,0,0.06);
+            padding: clamp(20px, 4vw, 36px);
+            text-align: center;
+            overflow: hidden;
+            border: 1px solid rgba(233,30,99,0.08);
+        }
+        .ribbon {
+            position: absolute;
+            inset: -40px -80px auto auto;
+            width: 240px;
+            height: 240px;
+            background: conic-gradient(from 0deg, #ff8fb1, #ffb6c1, #ffe1ec, #ff8fb1);
+            filter: blur(28px) saturate(120%);
+            opacity: 0.6;
+            transform: rotate(15deg);
+            pointer-events: none;
+        }
+        h1 {
+            font-size: clamp(28px, 5vw, 44px);
+            margin: 8px 0 6px;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+        }
+        .subtitle {
+            color: var(--muted);
+            font-size: clamp(14px, 2.5vw, 16px);
+            margin-bottom: 18px;
+        }
+        .name {
+            color: var(--accent);
+            font-weight: 800;
+            text-shadow: 0 6px 20px rgba(233,30,99,0.25);
+        }
+        .message {
+            font-size: clamp(16px, 2.6vw, 18px);
+            line-height: 1.7;
+            margin: 20px auto 24px;
+            max-width: 52ch;
+            white-space: pre-wrap;
+        }
+        .actions {
+            display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+        }
+        button, .linklike {
+            appearance: none;
+            border: 0;
+            background: var(--accent);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 999px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(233,30,99,0.35);
+            transition: transform .15s ease, box-shadow .15s ease, opacity .2s ease;
+            text-decoration: none;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        button:hover, .linklike:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(233,30,99,0.45); }
+        .ghost {
+            background: transparent;
+            color: var(--accent);
+            border: 2px solid rgba(233,30,99,0.3);
+            box-shadow: none;
+        }
+        .footer {
+            margin-top: 18px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+        /* confetti bits */
+        .confetti {
+            position: fixed;
+            top: -10px; left: 0; width: 100%; pointer-events: none;
+        }
+        .bit {
+            position: absolute; top: -10px; width: 10px; height: 14px;
+            border-radius: 2px;
+            opacity: .9;
+            animation: fall linear forwards;
+        }
+        @keyframes fall {
+            to {
+                transform: translate3d(var(--dx), 110vh, 0) rotate(var(--rot));
+                opacity: .95;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="card" role="article" aria-label="Thiệp chúc mừng 20/10">
+    <div class="ribbon" aria-hidden="true"></div>
+    <h1>Chúc mừng <span class="name" id="name">20/10</span> 💐</h1>
+    <div class="subtitle">Ngày Phụ Nữ Việt Nam</div>
+    <p class="message" id="msg">
+        Chúc bạn luôn rạng rỡ, hạnh phúc và gặp nhiều điều tốt đẹp! ✨
+    </p>
+
+    <div class="actions">
+        <button id="btnConfetti" aria-label="Bắn pháo giấy">Bắn pháo giấy 🎉</button>
+        <a id="btnShare" class="linklike ghost" href="#" aria-label="Sao chép liên kết cá nhân hoá">Sao chép liên kết 📎</a>
+    </div>
+
+    <div class="footer">Mẹo: thêm <code>?name=Ten&msg=Loi+chuc</code> vào URL để cá nhân hoá.</div>
+</div>
+
+<div class="confetti" id="confetti" aria-hidden="true"></div>
+
+<script>
+    // Lấy tham số URL
+    const params = new URLSearchParams(location.search);
+    const name = params.get('name') || '';
+    const message = params.get('msg') || '';
+
+    const nameEl = document.getElementById('name');
+    const msgEl = document.getElementById('msg');
+
+    if (name) nameEl.textContent = name;
+    if (message) msgEl.textContent = message;
+
+    // Nút bắn confetti
+    const colors = ['#e91e63','#ff8fb1','#ffb6c1','#ffe1ec','#ff6f91','#f06292'];
+    function confettiBurst(n=120) {
+        const wrap = document.getElementById('confetti');
+        for (let i=0;i<n;i++) {
+            const bit = document.createElement('div');
+            bit.className = 'bit';
+            const left = Math.random()*100;
+            const dx = (Math.random()*2-1) * 30 + 'vw';
+            const rot = (Math.random()*720 - 360) + 'deg';
+            const dur = (Math.random()*1.5 + 1.8).toFixed(2) + 's';
+            bit.style.left = left + 'vw';
+            bit.style.background = colors[i % colors.length];
+            bit.style.setProperty('--dx', dx);
+            bit.style.setProperty('--rot', rot);
+            bit.style.animationDuration = dur;
+            wrap.appendChild(bit);
+            // dọn sau khi rơi xong
+            setTimeout(()=> bit.remove(), parseFloat(dur)*1000 + 200);
+        }
+    }
+    document.getElementById('btnConfetti').addEventListener('click', () => confettiBurst());
+
+    // Chia sẻ liên kết đã cá nhân hoá (copy clipboard)
+    document.getElementById('btnShare').addEventListener('click', async (e) => {
+        e.preventDefault();
+        const url = new URL(location.href);
+        if (name) url.searchParams.set('name', name);
+        if (message) url.searchParams.set('msg', message);
+        try {
+            await navigator.clipboard.writeText(url.toString());
+            e.target.textContent = 'Đã sao chép ✔';
+            setTimeout(()=> e.target.textContent = 'Sao chép liên kết 📎', 1800);
+        } catch {
+            // fallback: mở prompt
+            const t = url.toString();
+            window.prompt('Sao chép URL này:', t);
+        }
+    });
+
+    // Auto-burst khi mở trang (nhẹ)
+    setTimeout(()=> confettiBurst(60), 500);
+</script>
+</body>
+</html>

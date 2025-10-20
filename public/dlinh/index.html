@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Happy Women’s Day</title>
+
+    <!-- Font sang trọng -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg:#fff7fa; --ink:#333; --muted:#888; --pink:#e91e63;
+            --shadow:0 22px 60px rgba(233,30,99,.18), 0 8px 24px rgba(0,0,0,.06);
+        }
+        *{box-sizing:border-box}
+        html,body{height:100%}
+        body{
+            margin:0; font-family:ui-sans-serif,-apple-system,Segoe UI,Roboto,Helvetica,Arial; color:var(--ink);
+            background:
+                    radial-gradient(1200px 600px at 12% -20%, #ffd1e8 0%, transparent 55%),
+                    radial-gradient(900px 520px at 108% 120%, #ffe4f1 0%, transparent 55%),
+                    var(--bg);
+            display:grid; grid-template-rows:auto 1fr; min-height:100vh; overflow-x:hidden;
+        }
+
+        header.hero{
+            padding-top:clamp(36px,10vh,68px);
+            display:grid; justify-items:center; align-content:start; gap:10px; text-align:center;
+        }
+        header.hero h1{
+            color:#a31250; margin:0; line-height:1.35; font-weight:600;
+            font-family:'Playfair Display', serif;
+            font-size:clamp(22px,5.8vw,36px);
+            letter-spacing:.3px;
+            text-shadow:0 2px 8px rgba(163,18,80,.18);
+            opacity:0; transform:translateY(10px);
+            animation:revealText .7s cubic-bezier(.2,.8,.2,1) .05s forwards;
+        }
+        @keyframes revealText{
+            from{ opacity:0; transform:translateY(10px); }
+            to  { opacity:1; transform:translateY(0); }
+        }
+        .lottie-header{
+            width:min(80vw,520px); height:clamp(110px,26vh,200px); margin:0 auto; display:block;
+        }
+
+        main.stage{position:relative;display:grid;place-items:center;padding:10px 12px;padding-bottom:16vh;}
+        .lottie-main{width:min(92vw,640px);height:clamp(320px,52vh,520px);margin:auto;border-radius:18px;overflow:hidden;}
+
+        .fab{
+            position:fixed;left:50%;transform:translateX(-50%);
+            bottom:max(8vh,24px);width:clamp(56px,12vw,72px);height:clamp(56px,12vw,72px);
+            background:#fff;border-radius:50%;display:grid;place-items:center;border:none;cursor:pointer;z-index:5;
+            box-shadow:var(--shadow);
+        }
+        .fab svg{width:60%;height:60%;display:block;filter:drop-shadow(0 3px 6px rgba(233,30,99,.18))}
+        .fab::after{
+            content:"";position:absolute;inset:0;border-radius:50%;
+            box-shadow:0 0 0 0 rgba(233,30,99,.35);
+            animation:pulse 1.6s ease-out infinite;
+        }
+        @keyframes pulse{
+            0%{box-shadow:0 0 0 0 rgba(233,30,99,.35)}
+            70%{box-shadow:0 0 0 16px rgba(233,30,99,0)}
+            100%{box-shadow:0 0 0 0 rgba(233,30,99,0)}
+        }
+
+        .modal{position:fixed;inset:0;display:grid;place-items:center;background:rgba(0,0,0,.35);
+            opacity:0;visibility:hidden;transition:.25s;z-index:10;backdrop-filter:blur(2px)}
+        .modal.show{opacity:1;visibility:visible}
+        .card{width:min(720px,92vw);max-height:78vh;overflow:auto;background:#fff;border-radius:22px;
+            box-shadow:var(--shadow);padding:clamp(16px,5vw,28px)}
+        .card h2{margin:0 0 10px;color:var(--pink);font-size:clamp(18px,5.4vw,26px)}
+        .typo{font-size:clamp(15px,4.4vw,18px);line-height:1.75;color:var(--ink);white-space:pre-wrap}
+    </style>
+
+    <script src="https://unpkg.com/lottie-web@5.12.2/build/player/lottie.min.js"></script>
+</head>
+<body>
+<header class="hero">
+    <h1>Chúc mừng Ngày<br>Phụ Nữ Việt Nam<br>20-10 🌸</h1>
+    <div id="lottieHeader" class="lottie-header"></div>
+</header>
+
+<main class="stage">
+    <div id="lottieMain" class="lottie-main"></div>
+</main>
+
+<button class="fab" id="open">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3.5 7.5h17v9a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2v-9Z" fill="#fff"/>
+        <path d="M3.5 7.5 12 13l8.5-5.5" stroke="#e91e63" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="3.5" y="6.8" width="17" height="11.7" rx="2.2" ry="2.2" stroke="#e91e63" stroke-width="1.8"/>
+    </svg>
+</button>
+
+<div class="modal" id="modal">
+    <div class="card">
+        <h2>Dear <span id="modalName">Dịu Linh🌷</span></h2>
+        <div id="lines" class="typo"></div>
+    </div>
+</div>
+
+<script>
+    const LOTTIE_HEADER = '../animations/header.json';
+    const LOTTIE_MAIN = '../animations/animation.json';
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        await loadLottie(LOTTIE_HEADER, 'lottieHeader');
+        await loadLottie(LOTTIE_MAIN, 'lottieMain');
+
+        const openBtn = document.getElementById('open');
+        const modal = document.getElementById('modal');
+        const linesEl = document.getElementById('lines');
+        const lines = [
+            "Hôm nay là 20/10 – một ngày đặc biệt dành cho phụ nữ.",
+            "Chúc bạn luôn hạnh phúc, tìm thấy niềm vui trong từng khoảnh khắc của cuộc sống 🌸",
+            "Mãi keoooooo "
+        ];
+
+        openBtn.addEventListener('click', ()=>{
+            modal.classList.add('show');
+            linesEl.innerHTML='';
+            typeByLine(lines);
+        });
+        modal.addEventListener('click', e=>{ if(e.target===modal) modal.classList.remove('show'); });
+
+        function typeByLine(ls){
+            ls.forEach((txt, idx)=>{
+                const p=document.createElement('div');
+                p.style.opacity=0; p.style.transform='translateY(8px)'; p.style.transition='all .55s ease';
+                linesEl.appendChild(p);
+                let i=0; const speed=22;
+                setTimeout(()=>{
+                    p.style.opacity=1; p.style.transform='none';
+                    const t=setInterval(()=>{ p.textContent=txt.slice(0, ++i); if(i>=txt.length) clearInterval(t); }, speed);
+                }, Math.max(60, idx*180));
+            });
+        }
+    });
+
+    async function loadLottie(path, containerId){
+        try{
+            const res = await fetch(path, { cache: 'no-store' });
+            if(!res.ok) throw new Error(`HTTP ${res.status}`);
+            const data = await res.json();
+            lottie.loadAnimation({
+                container: document.getElementById(containerId),
+                renderer: 'svg', loop: true, autoplay: true,
+                animationData: data
+            });
+        }catch(e){
+            console.error(`Không tải được ${path}:`, e);
+        }
+    }
+</script>
+</body>
+</html>
